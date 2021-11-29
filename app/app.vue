@@ -4,6 +4,20 @@
       <div class="header-container">
         <p class="header">🖼 GIF Portal</p>
         <p class="sub-text">View your GIF collection in the metaverse ✨</p>
+        <button
+          v-if="data && !data.publicKey"
+          class="cta-button connect-wallet-button"
+          @click="connect"
+        >
+          Connect to Wallet
+        </button>
+        <button
+          v-else
+          class="cta-button connect-wallet-button"
+          @click="disconnect"
+        >
+          Disconnect from Wallet
+        </button>
       </div>
       <div class="footer-container">
         <a
@@ -18,18 +32,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { Wallet } from "@/utils/wallet";
-
 const twitterHandle = '_buildspace';
 const twitterLink = `https://twitter.com/${twitterHandle}`;
 
-let wallet = null
+const { data, connect, disconnect } = useWallet()
 
-onMounted(async () => {
-  wallet = await Wallet.find().init()
-  console.log(wallet)
-})
 </script>
 
 <style>
@@ -68,9 +75,9 @@ onMounted(async () => {
 }
 
 .gradient-text {
-  background: -webkit-linear-gradient(left, #60c657 30%, #35aee2 60%);
+  background: linear-gradient(to left, #60c657 30%, #35aee2 60%);
   background-clip: text;
-  -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -88,13 +95,13 @@ onMounted(async () => {
 }
 
 .connect-wallet-button {
-  background: -webkit-linear-gradient(left, #60c657, #35aee2);
+  background: linear-gradient(to left, #60c657, #35aee2);
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
 }
 
 .submit-gif-button {
-  background: -webkit-linear-gradient(left, #4e44ce, #35aee2);
+  background: linear-gradient(to left, #4e44ce, #35aee2);
   background-size: 200% 200%;
   animation: gradient-animation 4s ease infinite;
   margin-left: 10px;
