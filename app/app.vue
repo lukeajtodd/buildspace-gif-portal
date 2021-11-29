@@ -17,15 +17,18 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
-const TWITTER_HANDLE = '_buildspace';
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+<script setup lang="ts">
+import { onMounted } from "vue";
+import { Wallet } from "@/utils/wallet";
 
-export default defineComponent({
-  setup() {
-    return { twitterLink: TWITTER_LINK, twitterHandle: TWITTER_HANDLE }
-  }
+const twitterHandle = '_buildspace';
+const twitterLink = `https://twitter.com/${twitterHandle}`;
+
+let wallet = null
+
+onMounted(async () => {
+  wallet = await Wallet.find().init()
+  console.log(wallet)
 })
 </script>
 
