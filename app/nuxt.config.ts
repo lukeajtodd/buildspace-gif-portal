@@ -5,6 +5,9 @@ import inject from "@rollup/plugin-inject";
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
   css: ["@/assets/css/index.css"],
+  buildModules: [
+    '@pinia/nuxt'
+  ],
   vite: {
     plugins: [
       inject({

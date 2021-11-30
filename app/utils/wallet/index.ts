@@ -1,18 +1,23 @@
-import { SlopeWallet } from "./slope";
+// import { lopeHelpers } from "./slope";
 
-const walletTypes: any[] = [
-  {
-    key: "slope",
-    obj: SlopeWallet,
-  },
-];
+// interface iWalletType {
+//   key: string,
+//   obj: any
+// }
 
-export const findWallet = () => {
-  const result = walletTypes.find(({ key, obj }) => obj.check());
+// const walletTypes: iWalletType[] = [
+//   {
+//     key: "slope",
+//     obj: SlopeWallet,
+//   },
+// ];
 
-  if (result && result.obj) {
-    return result.obj.init();
-  }
+// export const findWallet = () => {
+//   const result = walletTypes.find(({ key, obj }) => obj.check());
 
-  return null;
-};
+//   if (result && result.obj) {
+//     return result.obj.init();
+//   }
+
+//   return null;
+// };

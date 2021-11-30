@@ -1,23 +1,27 @@
 <template>
   <div class="App">
-    <div class="container">
+    <div :class="store.address ? 'authed-container' : 'container'">
       <div class="header-container">
-        <p class="header">🖼 GIF Portal</p>
-        <p class="sub-text">View your GIF collection in the metaverse ✨</p>
+        <p class="header">🐉 GIF Portal</p>
+        <p class="sub-text">View your GIF collection in the metaverse 🐢</p>
         <button
-          v-if="data && !data.publicKey"
+          v-if="!store.address"
           class="cta-button connect-wallet-button"
-          @click="connect"
-        >
-          Connect to Wallet
-        </button>
-        <button
-          v-else
-          class="cta-button connect-wallet-button"
-          @click="disconnect"
-        >
-          Disconnect from Wallet
-        </button>
+          @click="handleConnect"
+        >Connect to Wallet</button>
+        <template v-else>
+          <div class="connected-container">
+            <form @submit.prevent="sendGif">
+              <input v-model="input" type="text" placeholder="Enter gif link!" />
+              <button type="submit" class="cta-button submit-gif-button">Submit</button>
+            </form>
+            <div class="gif-grid">
+              <div class="gif-item" :key="gif" v-for="gif in gifList">
+                <img :src="gif" :alt="gif" />
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
       <div class="footer-container">
         <a
@@ -32,10 +36,46 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, reactive } from 'vue'
+import { useSlopeWallet } from '@/stores/wallet'
+
+const GIFS = [
+  'https://media.giphy.com/media/IkLhbMyv1TOymOM9Zi/giphy.gif',
+  'https://media.giphy.com/media/2RYkUXJi4tHHD1RxxP/giphy.gif',
+  'https://media.giphy.com/media/BaSnOKasWWNig/giphy.gif',
+  'https://media.giphy.com/media/YrgpQheSc45Fu/giphy.gif',
+  'https://media.giphy.com/media/11O3jeRFgWaQ0w/giphy.gif'
+]
+
 const twitterHandle = '_buildspace';
 const twitterLink = `https://twitter.com/${twitterHandle}`;
 
-const { data, connect, disconnect } = useWallet()
+const store = useSlopeWallet()
+const input = ref('')
+const gifList = ref([])
+const address = ref('')
+
+watch(address, (v) => {
+  if (v && v.length) {
+    console.log('Fetching GIFs...')
+    gifList.value = GIFS
+  }
+})
+
+const sendGif = async () => {
+  if (input.value.length > 0) {
+    console.log('Gif link:', input.value)
+    gifList.value = [...gifList.value, input.value]
+    input.value = ''
+  } else {
+    console.log('Empty input. Try again.')
+  }
+}
+
+const handleConnect = async () => {
+  await store.connect()
+  address.value = store.address
+}
 
 </script>
 
