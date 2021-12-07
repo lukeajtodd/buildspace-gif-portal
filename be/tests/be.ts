@@ -11,7 +11,7 @@ describe('be', () => {
 
   it('Is initialized!', async () => {
     // Add your test here.
-    const tx = await program.rpc.initialize({});
+    const tx = await program.rpc.start({});
     console.log("Your transaction signature", tx);
   });
 });
