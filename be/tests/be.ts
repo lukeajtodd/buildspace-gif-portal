@@ -35,10 +35,17 @@ describe('be', () => {
     return expect(account.totalGifs.toString()).to.eql('0')
   })
 
-  it('Can increment the GIF Count', async () => {
-    await program.rpc.addGif({
+  it('Has a GIF List', async () => {
+    const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+    console.log('Gif List: ', account.gifList);
+    return expect(account.gifList).to.exist;
+  })
+
+  it('Can add a GIF', async () => {
+    await program.rpc.addGif('https://media.giphy.com/media/QENnRdIEiXwA0/giphy.gif', {
       accounts: {
-        baseAccount: baseAccount.publicKey
+        baseAccount: baseAccount.publicKey,
+        user: provider.wallet.publicKey,
       }
     });
 
@@ -46,5 +53,11 @@ describe('be', () => {
     console.log('Gif Count: ', account.totalGifs.toString());
 
     return expect(account.totalGifs.toString()).to.eql('1')
+  })
+
+  it('The GIF List has updated', async () => {
+    const account = await program.account.baseAccount.fetch(baseAccount.publicKey);
+    console.log('Gif List: ', account.gifList);
+    return expect(account.gifList).to.have.lengthOf(1);
   })
 });
