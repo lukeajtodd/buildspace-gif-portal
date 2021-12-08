@@ -1,11 +1,11 @@
-[programs.localnet]
-be = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+[programs.devnet]
+be = "E1scYKZaENP8SN1WPwpsQnX3eFA8zwbzgYg1tQ8RxTvN"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/home/luke/.config/solana/id.json"
 
 [scripts]

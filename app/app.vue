@@ -37,7 +37,22 @@
 
 <script setup lang="ts">
 import { ref, watch, reactive } from 'vue'
+import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
+import { Program, Provider, web3 } from '@project-serum/anchor'
+
+import idl from '@/utils/json/idl.json'
 import { useSlopeWallet } from '@/stores/wallet'
+
+const { SystemProgram, Keypair } = web3
+const baseAccount = Keypair.generate()
+const programID = new PublicKey(idl.metadata.address)
+const network = clusterApiUrl('devnet')
+// Determines how long we wait for the transaction
+// 'processed' is usually just for the connected node
+// 'finalized' is for the whole transaction to be completed
+const opts: web3.ConfirmOptions = {
+  preflightCommitment: "processed"
+}
 
 const GIFS = [
   'https://media.giphy.com/media/IkLhbMyv1TOymOM9Zi/giphy.gif',
@@ -55,10 +70,24 @@ const input = ref('')
 const gifList = ref([])
 const address = ref('')
 
+const fetchGifs = async () => {
+  try {
+    const provider = getProvider()
+    const program = new Program((idl as any), programID, provider)
+    const account = await program.account.baseAccount.fetch(baseAccount.publicKey)
+
+    console.log('Got the account: ', account)
+    gifList.value = account.gifList
+  } catch (err) {
+    console.error(err)
+    gifList.value = null
+  }
+}
+
 watch(address, (v) => {
   if (v && v.length) {
     console.log('Fetching GIFs...')
-    gifList.value = GIFS
+    fetchGifs()
   }
 })
 
@@ -70,6 +99,14 @@ const sendGif = async () => {
   } else {
     console.log('Empty input. Try again.')
   }
+}
+
+const getProvider = () => {
+  const connection = new Connection(network, opts.preflightCommitment)
+  const provider = new Provider(
+    connection, store.slope, opts
+  )
+  return provider
 }
 
 const handleConnect = async () => {
