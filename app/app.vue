@@ -29,7 +29,7 @@
               </form>
               <div class="gif-grid">
                 <div class="gif-item" :key="gif" v-for="gif in gifList">
-                  <img :src="gif" :alt="gif" />
+                  <img :src="gif.gifLink" :alt="gif.gifLink" />
                 </div>
               </div>
             </div>
@@ -54,10 +54,13 @@ import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 import { Program, Provider, web3 } from '@project-serum/anchor'
 
 import idl from '@/utils/json/idl.json'
+import kp from './keypair.json'
 import { usePhantomWallet } from '@/stores/wallet'
 
 const { SystemProgram, Keypair } = web3
-const baseAccount = Keypair.generate()
+const arr = Object.values(kp._keypair.secretKey)
+const secret = new Uint8Array(arr)
+const baseAccount = web3.Keypair.fromSecretKey(secret)
 const programID = new PublicKey(idl.metadata.address)
 const network = clusterApiUrl('devnet')
 // Determines how long we wait for the transaction
@@ -131,12 +134,27 @@ watch(address, async (v) => {
 })
 
 const sendGif = async () => {
-  if (input.value.length > 0) {
-    console.log('Gif link:', input.value)
-    gifList.value = [...gifList.value, input.value]
+  if (input.value.length === 0) {
+    console.log('Empty input!')
+    return
+  }
+
+  try {
+    const provider = getProvider()
+    const program = new Program((idl as any), programID, provider)
+    await program.rpc.addGif(input.value, {
+      accounts: {
+        baseAccount: baseAccount.publicKey,
+        user: provider.wallet.publicKey
+      }
+    })
+
     input.value = ''
-  } else {
-    console.log('Empty input. Try again.')
+
+    await fetchGifs()
+
+  } catch (err) {
+    console.error(err)
   }
 }
 
