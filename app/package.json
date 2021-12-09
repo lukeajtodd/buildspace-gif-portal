@@ -6,12 +6,12 @@
     "start": "node .output/server/index.mjs"
   },
   "devDependencies": {
-    "nuxt3": "latest"
+    "nuxt3": "^3.0.0-27313139.1c88580"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.1.5",
+    "@pinia/nuxt": "^0.1.6",
     "@project-serum/anchor": "^0.18.2",
     "@solana/web3.js": "^1.31.0",
-    "pinia": "^2.0.4"
+    "pinia": "^2.0.6"
   }
 }
