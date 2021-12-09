@@ -1,6 +1,5 @@
 import { defineNuxtConfig } from "nuxt3";
 import inject from "@rollup/plugin-inject";
-// import Inspect from "vite-plugin-inspect";
 
 // https://v3.nuxtjs.org/docs/directory-structure/nuxt.config
 export default defineNuxtConfig({
