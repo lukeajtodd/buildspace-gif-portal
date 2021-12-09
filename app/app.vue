@@ -10,17 +10,30 @@
           @click="handleConnect"
         >Connect to Wallet</button>
         <template v-else>
-          <div class="connected-container">
-            <form @submit.prevent="sendGif">
-              <input v-model="input" type="text" placeholder="Enter gif link!" />
-              <button type="submit" class="cta-button submit-gif-button">Submit</button>
-            </form>
-            <div class="gif-grid">
-              <div class="gif-item" :key="gif" v-for="gif in gifList">
-                <img :src="gif" :alt="gif" />
+          <template v-if="loading">
+            <h2>Loading...</h2>
+          </template>
+          <template v-else-if="gifList === null">
+            <div class="connected-container">
+              <button
+                class="cta-button submit-gif-button"
+                @click="createAccount"
+              >Do One-Time Initialization For GIF Program Account</button>
+            </div>
+          </template>
+          <template v-else>
+            <div class="connected-container">
+              <form @submit.prevent="sendGif">
+                <input v-model="input" type="text" placeholder="Enter gif link!" />
+                <button type="submit" class="cta-button submit-gif-button">Submit</button>
+              </form>
+              <div class="gif-grid">
+                <div class="gif-item" :key="gif" v-for="gif in gifList">
+                  <img :src="gif" :alt="gif" />
+                </div>
               </div>
             </div>
-          </div>
+          </template>
         </template>
       </div>
       <div class="footer-container">
@@ -36,12 +49,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, reactive } from 'vue'
+import { ref, watch } from 'vue'
 import { Connection, PublicKey, clusterApiUrl } from '@solana/web3.js'
 import { Program, Provider, web3 } from '@project-serum/anchor'
 
 import idl from '@/utils/json/idl.json'
-import { useSlopeWallet } from '@/stores/wallet'
+import { usePhantomWallet } from '@/stores/wallet'
 
 const { SystemProgram, Keypair } = web3
 const baseAccount = Keypair.generate()
@@ -65,10 +78,31 @@ const GIFS = [
 const twitterHandle = '_buildspace';
 const twitterLink = `https://twitter.com/${twitterHandle}`;
 
-const store = useSlopeWallet()
+const store = usePhantomWallet()
 const input = ref('')
 const gifList = ref([])
 const address = ref('')
+const loading = ref(true)
+
+const createAccount = async () => {
+  try {
+    const provider = getProvider()
+    const program = new Program((idl as any), programID, provider)
+    await program.rpc.start({
+      accounts: {
+        baseAccount: baseAccount.publicKey,
+        user: provider.wallet.publicKey,
+        systemProgram: SystemProgram.programId
+      },
+      signers: [baseAccount]
+    })
+
+    console.log('Created a new base account: ', baseAccount.publicKey.toString())
+    await fetchGifs()
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 const fetchGifs = async () => {
   try {
@@ -84,10 +118,15 @@ const fetchGifs = async () => {
   }
 }
 
-watch(address, (v) => {
+watch(address, async (v) => {
   if (v && v.length) {
     console.log('Fetching GIFs...')
-    fetchGifs()
+    try {
+      await fetchGifs()
+      loading.value = false
+    } catch (err) {
+      console.error(err)
+    }
   }
 })
 
@@ -104,7 +143,7 @@ const sendGif = async () => {
 const getProvider = () => {
   const connection = new Connection(network, opts.preflightCommitment)
   const provider = new Provider(
-    connection, store.slope, opts
+    connection, window.solana, opts
   )
   return provider
 }
